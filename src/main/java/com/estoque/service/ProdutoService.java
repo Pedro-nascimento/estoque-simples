@@ -5,7 +5,7 @@ import com.estoque.model.Categoria;
 import com.estoque.model.Produto;
 import com.estoque.repository.CategoriaRepository;
 import com.estoque.repository.ProdutoRepository;
-import jakarta.persistence.EntityNotFoundException;
+import javax.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
