@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controle de Estoque</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">Controle de Estoque</div>
+        <ul class="nav-menu">
+            <li><a href="#" class="nav-link active" data-page="produtos">Produtos</a></li>
+            <li><a href="#" class="nav-link" data-page="categorias">Categorias</a></li>
+            <li><a href="#" class="nav-link" data-page="movimentacoes">Movimentações</a></li>
+        </ul>
+    </nav>
+
+    <main class="container">
+        <!-- Página de Produtos -->
+        <section id="produtos-page" class="page active">
+            <div class="page-header">
+                <h1>Produtos</h1>
+                <button class="btn btn-primary" onclick="abrirModalProduto()">Novo Produto</button>
+            </div>
+
+            <div class="filters">
+                <input type="text" id="busca-produto" placeholder="Buscar por nome ou SKU..." onkeyup="buscarProdutos()">
+                <select id="filtro-categoria" onchange="filtrarPorCategoria()">
+                    <option value="">Todas as categorias</option>
+                </select>
+                <label class="checkbox-label">
+                    <input type="checkbox" id="filtro-estoque-baixo" onchange="filtrarEstoqueBaixo()">
+                    Estoque baixo
+                </label>
+            </div>
+
+            <div class="table-container">
+                <table id="tabela-produtos">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>SKU</th>
+                            <th>Categoria</th>
+                            <th>Preço</th>
+                            <th>Estoque</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Página de Categorias -->
+        <section id="categorias-page" class="page">
+            <div class="page-header">
+                <h1>Categorias</h1>
+                <button class="btn btn-primary" onclick="abrirModalCategoria()">Nova Categoria</button>
+            </div>
+
+            <div class="table-container">
+                <table id="tabela-categorias">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Descrição</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Página de Movimentações -->
+        <section id="movimentacoes-page" class="page">
+            <div class="page-header">
+                <h1>Movimentações</h1>
+                <div class="btn-group">
+                    <button class="btn btn-success" onclick="abrirModalMovimentacao('ENTRADA')">Entrada</button>
+                    <button class="btn btn-danger" onclick="abrirModalMovimentacao('SAIDA')">Saída</button>
+                    <button class="btn btn-warning" onclick="abrirModalMovimentacao('AJUSTE')">Ajuste</button>
+                </div>
+            </div>
+
+            <div class="filters">
+                <select id="filtro-produto-mov" onchange="filtrarMovimentacoes()">
+                    <option value="">Todos os produtos</option>
+                </select>
+                <select id="filtro-tipo-mov" onchange="filtrarMovimentacoes()">
+                    <option value="">Todos os tipos</option>
+                    <option value="ENTRADA">Entrada</option>
+                    <option value="SAIDA">Saída</option>
+                    <option value="AJUSTE">Ajuste</option>
+                </select>
+            </div>
+
+            <div class="table-container">
+                <table id="tabela-movimentacoes">
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Produto</th>
+                            <th>Tipo</th>
+                            <th>Quantidade</th>
+                            <th>Anterior</th>
+                            <th>Posterior</th>
+                            <th>Motivo</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal Produto -->
+    <div id="modal-produto" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-produto-titulo">Novo Produto</h2>
+                <button class="close-btn" onclick="fecharModal('modal-produto')">&times;</button>
+            </div>
+            <form id="form-produto" onsubmit="salvarProduto(event)">
+                <input type="hidden" id="produto-id">
+                <div class="form-group">
+                    <label for="produto-nome">Nome *</label>
+                    <input type="text" id="produto-nome" required>
+                </div>
+                <div class="form-group">
+                    <label for="produto-descricao">Descrição</label>
+                    <textarea id="produto-descricao"></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="produto-sku">SKU</label>
+                        <input type="text" id="produto-sku">
+                    </div>
+                    <div class="form-group">
+                        <label for="produto-categoria">Categoria</label>
+                        <select id="produto-categoria"></select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="produto-preco">Preço *</label>
+                        <input type="number" id="produto-preco" step="0.01" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="produto-preco-custo">Preço de Custo</label>
+                        <input type="number" id="produto-preco-custo" step="0.01" min="0">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="produto-estoque">Quantidade em Estoque</label>
+                        <input type="number" id="produto-estoque" min="0" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="produto-estoque-minimo">Estoque Mínimo</label>
+                        <input type="number" id="produto-estoque-minimo" min="0" value="0">
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="fecharModal('modal-produto')">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Categoria -->
+    <div id="modal-categoria" class="modal">
+        <div class="modal-content modal-sm">
+            <div class="modal-header">
+                <h2 id="modal-categoria-titulo">Nova Categoria</h2>
+                <button class="close-btn" onclick="fecharModal('modal-categoria')">&times;</button>
+            </div>
+            <form id="form-categoria" onsubmit="salvarCategoria(event)">
+                <input type="hidden" id="categoria-id">
+                <div class="form-group">
+                    <label for="categoria-nome">Nome *</label>
+                    <input type="text" id="categoria-nome" required>
+                </div>
+                <div class="form-group">
+                    <label for="categoria-descricao">Descrição</label>
+                    <textarea id="categoria-descricao"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="fecharModal('modal-categoria')">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Movimentação -->
+    <div id="modal-movimentacao" class="modal">
+        <div class="modal-content modal-sm">
+            <div class="modal-header">
+                <h2 id="modal-movimentacao-titulo">Nova Movimentação</h2>
+                <button class="close-btn" onclick="fecharModal('modal-movimentacao')">&times;</button>
+            </div>
+            <form id="form-movimentacao" onsubmit="salvarMovimentacao(event)">
+                <input type="hidden" id="movimentacao-tipo">
+                <div class="form-group">
+                    <label for="movimentacao-produto">Produto *</label>
+                    <select id="movimentacao-produto" required></select>
+                </div>
+                <div class="form-group">
+                    <label for="movimentacao-quantidade" id="label-quantidade">Quantidade *</label>
+                    <input type="number" id="movimentacao-quantidade" min="1" required>
+                </div>
+                <div class="form-group">
+                    <label for="movimentacao-motivo">Motivo</label>
+                    <textarea id="movimentacao-motivo"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="fecharModal('modal-movimentacao')">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Confirmar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast para notificações -->
+    <div id="toast" class="toast"></div>
+
+    <script src="js/api.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
